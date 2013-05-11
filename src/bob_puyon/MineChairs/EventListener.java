@@ -150,9 +150,11 @@ implements Listener
 					blockOkay = true;
 					sh = cb.getSitHeight();
 				}
-				Bukkit.getServer().broadcastMessage("DATA : " + block.getType() );
-				Bukkit.getServer().broadcastMessage("DATA : " + block.getTypeId() );
-				Bukkit.getServer().broadcastMessage("DATA : " + block.getData() );
+
+				// ** Sorry, Debug Code **
+				//Bukkit.getServer().broadcastMessage("DATA : " + block.getType() );
+				//Bukkit.getServer().broadcastMessage("DATA : " + block.getTypeId() );
+				//Bukkit.getServer().broadcastMessage("DATA : " + block.getData() );
 			}
 			if ((blockOkay) || ((player.hasPermission("chairs.sit." + block.getTypeId())) && (this.plugin.perItemPerms)) || ((player.hasPermission("chairs.sit." + block.getType().toString())) && (this.plugin.perItemPerms)))
 			{
