@@ -1,0 +1,14 @@
+name: MineChairs
+version: 2.0.3
+description: Let players sit on blocks.
+authors:
+ - spoothie
+ - cnaude
+main: bob_puyon.MineChairs.MineChairs
+commands:
+    chairs:
+        description: Various commands for Chairs.
+        usage: |
+          /<command> reload - reloads the configuration
+          /<command> off  - disable chairs for self
+          /<command> on - enable chairs for self
