@@ -26,6 +26,8 @@ allowed-blocks:
     - SMOOTH_STAIRS
     - NETHER_BRICK_STAIRS
     - QUARTZ_STAIRS
+    - STEP
+    - WOOD_STEP
 valid-signs:
   - SIGN
   - WALL_SIGN
@@ -36,14 +38,14 @@ sneaking: true
 max-chair-width: 3
 sign-check: false
 distance: 2
-sitting-height: 0.7
+sitting-height: 0.6
 sitting-height-adj: 1.0
 permissions: true
 notify-player: true
 upside-down-check: true
 seat-occupied-check: true
 upper-step-check: true
-per-item-perms: true
+per-item-perms: false
 ops-override-perms: false
 ignore-if-block-in-hand: false
 sit-effects:
@@ -60,4 +62,3 @@ messages:
   no-permission: '&cYou do not have permission to do this!'
   enabled: '&7You have enabled chairs for yourself!'
   disabled: '&7You have disabled chairs for yourself!'
-    

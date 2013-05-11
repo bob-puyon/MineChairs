@@ -3,10 +3,6 @@ package bob_puyon.MineChairs;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-
-
-
-
 public class ChairEffects
 {
 	MineChairs plugin;

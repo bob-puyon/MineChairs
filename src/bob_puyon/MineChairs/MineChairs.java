@@ -157,17 +157,32 @@ public class MineChairs extends JavaPlugin
 
 		for (String s : getConfig().getStringList("allowed-blocks"))
 		{
-			double sh = this.sittingHeight;
+			String def_blk = s;
 			String type;
-			if (s.contains(":")) {
-				String[] tmp = s.split(":", 2);
-				type = tmp[0];
-				sh = Double.parseDouble(tmp[1]);
+			String data;
+
+			double sh = this.sittingHeight;
+
+			String[] tmp_high;
+			String[] tmp_type;
+
+			// ブロックの種類に応じて@デリミタで高さが割り当てされている場合
+			if (def_blk.contains("@")){
+				tmp_high = def_blk.split("@",2);
+				sh = Double.valueOf( tmp_high[1] );
+				def_blk = tmp_high[0];
+			}
+			// ハーフブロック等ブロックにDataValueが指定されている場合
+			// TODO:ハーフブロック郡(STEP,WOOD_STEP)についてはそれ専用のHashMapで処理
+			if (def_blk.contains(":")) {
+				tmp_type = def_blk.split(":", 2);
+				type = tmp_type[0];
+				data = tmp_type[1];
 			} else {
 				type = s;
 			}
-			try
-			{
+
+			try{
 				Material mat;
 				if (type.matches("\\d+"))
 					mat = Material.getMaterial(Integer.parseInt(type));
