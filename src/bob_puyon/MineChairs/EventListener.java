@@ -289,7 +289,6 @@ implements Listener
 					} else {
 						Location plocation = block.getLocation().clone();
 						plocation.setYaw(player.getLocation().getYaw());
-						player.sendMessage( "sit_hight : " + sh );
 						player.teleport(plocation.add(0.5D, sh - 0.5D, 0.5D));
 					}
 					player.setSneaking(true);
