@@ -42,9 +42,9 @@ sitting-height: 0.6
 sitting-height-adj: 1.0
 permissions: true
 notify-player: true
-upside-down-check: true
+upside-down-check: false
 seat-occupied-check: true
-upper-step-check: true
+upper-step-check: false
 per-item-perms: false
 ops-override-perms: false
 ignore-if-block-in-hand: false

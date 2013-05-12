@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -22,6 +23,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.material.Stairs;
 import org.bukkit.material.Step;
+import org.bukkit.material.WoodenStep;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
@@ -121,6 +123,7 @@ implements Listener
 			Block block = event.getClickedBlock();
 			Stairs stairs = null;
 			Step step = null;
+			WoodenStep woodenstep = null;
 			double sh = this.plugin.sittingHeight;
 			boolean blockOkay = false;
 
@@ -162,6 +165,8 @@ implements Listener
 					stairs = (Stairs)block.getState().getData();
 				else if ((block.getState().getData() instanceof Step))
 					step = (Step)block.getState().getData();
+				else if ((block.getState().getData() instanceof WoodenStep))
+					woodenstep = (WoodenStep)block.getState().getData();
 				else {
 					sh += this.plugin.sittingHeightAdj;
 				}
@@ -197,9 +202,18 @@ implements Listener
 					return;
 				}
 
-				if ((step != null) &&
-						(step.isInverted()) && (this.plugin.invertedStepCheck)) {
-					return;
+				if (step != null){
+					if( this.plugin.invertedStepCheck ){ return; }
+					if( step.isInverted() ){
+						sh += 0.5D;
+					}
+				}
+
+				if (woodenstep != null){
+					if( this.plugin.invertedStepCheck ){ return; }
+					if( woodenstep.isInverted() ){
+						sh += 0.3D;
+					}
 				}
 
 				if ((this.plugin.signCheck == true) && (stairs != null)) {
@@ -275,6 +289,7 @@ implements Listener
 					} else {
 						Location plocation = block.getLocation().clone();
 						plocation.setYaw(player.getLocation().getYaw());
+						player.sendMessage( "sit_hight : " + sh );
 						player.teleport(plocation.add(0.5D, sh - 0.5D, 0.5D));
 					}
 					player.setSneaking(true);
@@ -285,9 +300,16 @@ implements Listener
 					event.setUseInteractedBlock(Result.DENY);
 
 					delayedSitTask();
+					//plugin.layDown(player, block);
 				}
 			}
 		}
+	}
+
+	// 「Leave Bed」が押下されベッドから起き上がる時のイベント
+	@EventHandler
+	public void onPlayerBedLeave(PlayerBedLeaveEvent event) {
+		//plugin.sendWakeUp( event.getPlayer(), event.getBed() );
 	}
 
 	private int getChairWidth(Block block, BlockFace face) {
@@ -301,7 +323,6 @@ implements Listener
 			}
 
 		}
-
 		return width;
 	}
 

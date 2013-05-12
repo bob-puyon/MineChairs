@@ -7,12 +7,16 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.minecraft.server.v1_5_R3.EntityPlayer;
+import net.minecraft.server.v1_5_R3.Packet17EntityLocationAction;
+import net.minecraft.server.v1_5_R3.Packet18ArmAnimation;
 import net.minecraft.server.v1_5_R3.Packet40EntityMetadata;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_5_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -249,6 +253,10 @@ public class MineChairs extends JavaPlugin
 	}
 	 */
 
+
+	// ##############################
+	//  着席・起立を実現する処理
+	// ##############################
 	public void sendSitAll()
 	{
 		for (String s : this.sit.keySet()) {
@@ -258,39 +266,33 @@ public class MineChairs extends JavaPlugin
 		}
 	}
 
-	public void sendSit(Player player)
+	public void sendSit(Player sit_player)
 	{
-		//Packet40EntityMetadata packet = new Packet40EntityMetadata(p.getPlayer().getEntityId(), new ChairWatcher((byte)4), false);
-		//for (Player play : Bukkit.getOnlinePlayers())
-		//パケットの送信
-		((CraftPlayer)player).getHandle().playerConnection.sendPacket( generateSitPacket(player) );
+		// パケットの送信
+		// 対象のプレイヤーが立ち上がったという情報を他のプレイヤーにも送らないと
+		// 座っているエフェクトが反映されないことになる
+		for (Player player : Bukkit.getOnlinePlayers()){
+			((CraftPlayer)player).getHandle().playerConnection.sendPacket( generateSitPacket(sit_player) );
+		}
 	}
 
-	public void sendStand(Player player)
+	public void sendStand(Player stand_player)
 	{
-		if (this.sit.containsKey(player.getName())) {
+		if (this.sit.containsKey(stand_player.getName())) {
 			if (this.notifyplayer) {
-				player.sendMessage(ChatColor.GRAY + "You are no longer sitting.");
+				stand_player.sendMessage(ChatColor.GRAY + "You are no longer sitting.");
 			}
-			this.sit.remove(player.getName());
+			this.sit.remove(stand_player.getName());
 		}
-		//for (Player play : Bukkit.getOnlinePlayers())
-		//パケットの送信
-		((CraftPlayer)player).getHandle().playerConnection.sendPacket( generateStandPacket(player) );
+
+		// パケットの送信
+		// 対象のプレイヤーが立ち上がったという情報を他のプレイヤーにも送らないと
+		// 座っているエフェクトが反映されないことになる
+		for (Player player : Bukkit.getOnlinePlayers()){
+			((CraftPlayer)player).getHandle().playerConnection.sendPacket( generateStandPacket(stand_player) );
+		}
 	}
 
-	/*
-	public void sendStand(Player p)
-	{
-		if (this.sit.containsKey(p.getName())) {
-			if ((this.notifyplayer) && (!this.msgStanding.isEmpty())) {
-				p.sendMessage(this.msgStanding);
-			}
-			this.sit.remove(p.getName());
-		}
-		sendPacketToPlayers(getStandPacket(p), p);
-	}
-	 */
 	private Packet40EntityMetadata generateSitPacket(Player p){
 		return new Packet40EntityMetadata(p.getPlayer().getEntityId(), new ChairWatcher((byte)4), false);
 	}
@@ -299,6 +301,38 @@ public class MineChairs extends JavaPlugin
 		return new Packet40EntityMetadata(p.getPlayer().getEntityId(), new ChairWatcher((byte)0), false);
 	}
 
+	// ##############################
+	// 横になる・立ち上がる動作を実現する処理
+	// ##############################
+	public void sendLayDown(Player p, Block block) {
+		p.setAllowFlight(true);
+		p.setFlying(true);
+
+		p.teleport(block.getLocation().add(0.5, 0.6, 0.5));
+
+		final EntityPlayer ep = ((CraftPlayer)p).getHandle();
+		for(Player recv_p : getServer().getOnlinePlayers())
+			((CraftPlayer)recv_p).getHandle().playerConnection.sendPacket(
+					new Packet17EntityLocationAction( ep, 0, block.getX(), block.getY(), block.getZ()) );
+
+		//for(Player all_p : getServer().getOnlinePlayers())
+		//	((CraftPlayer)all_p).getHandle().playerConnection.sendPacket(
+		//			new Packet70Bed( p.getEntityId(), 78) );
+	}
+
+	public void sendWakeUp(Player p, Block bed) {
+		if( bed.getType() != Material.BED || bed.getType() != Material.BED_BLOCK){
+			final EntityPlayer ep = ((CraftPlayer)p).getHandle();
+			Packet18ArmAnimation arm = new Packet18ArmAnimation(ep, 3);
+
+			for(Player recv_p : getServer().getOnlinePlayers()){
+				((CraftPlayer)recv_p).getHandle().playerConnection.sendPacket(arm);
+			}
+
+			p.setFlying(false);
+			p.setAllowFlight(false);
+		}
+	}
 
 	public void logInfo(String _message) {
 		log.log(Level.INFO, String.format("%s %s", new Object[] { "[MineChairs]", _message }));
